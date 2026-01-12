@@ -1,0 +1,155 @@
+/* ========================================
+   RESPONSIVE.CSS
+   Media queries za prilagođavanje sajta različitim veličinama ekrana
+   ======================================== */
+
+/* ========== LARGE DEVICES (max-width: 992px) ========== */
+@media (max-width: 992px) {
+    /* Statistika overlay - uklanja negativan margin */
+    .statistika-overlay {
+        margin-top: 0;
+    }
+
+    /* Video galerija - smanjuje visinu */
+    .video-slide-container,
+    .video-slide-wrapper {
+        min-height: 550px;
+        gap: 20px;
+    }
+
+    /* Naslov videa - smanjuje font */
+    .video-title {
+        font-size: 2rem;
+    }
+
+    /* Centralni video - povećava širinu */
+    .central-video {
+        width: 50%;
+    }
+
+    /* Floating slike - smanjuje dimenzije */
+    .img-1,
+    .img-2,
+    .img-3,
+    .img-4 {
+        width: 140px;
+        height: 110px;
+    }
+
+    .img-5,
+    .img-6 {
+        width: 120px;
+        height: 90px;
+    }
+
+    /* Flip animacija - smanjuje padding */
+    .video-back {
+        padding: 30px;
+    }
+    
+    .video-back-content h3 {
+        font-size: 1.5rem;
+    }
+}
+
+/* ========== MEDIUM DEVICES (max-width: 768px) ========== */
+@media (max-width: 768px) {
+    /* Video galerija - dodatno smanjuje visinu */
+    .video-slide-container,
+    .video-slide-wrapper {
+        min-height: 450px;
+        gap: 15px;
+    }
+
+    /* Naslov videa - dodatno smanjuje font */
+    .video-title {
+        font-size: 1.5rem;
+    }
+
+    /* Centralni video - povećava širinu */
+    .central-video {
+        width: 70%;
+    }
+
+    /* Video button - smanjuje maksimalnu širinu */
+    .video-button {
+        max-width: 250px;
+    }
+
+    /* Sakriva slike 5 i 6 na manjim ekranima */
+    .img-5,
+    .img-6 {
+        display: none;
+    }
+
+    /* Lightbox - prilagođava dimenzije */
+    .image-lightbox-img {
+        max-width: 95%;
+        max-height: 85vh;
+    }
+
+    /* Flip animacija - smanjuje padding */
+    .video-back {
+        padding: 20px;
+    }
+    
+    .video-back-content h3 {
+        font-size: 1.25rem;
+    }
+    
+    .video-back-content p {
+        font-size: 0.9rem;
+    }
+
+    /* Projekat sekcija - unifikuje visine */
+    .project-tall,
+    .project-short,
+    .project-large {
+        height: 250px;
+    }
+}
+
+/* ========== SMALL DEVICES (max-width: 576px) ========== */
+@media (max-width: 576px) {
+    /* Video galerija - minimalne dimenzije */
+    .video-slide-container,
+    .video-slide-wrapper {
+        min-height: 350px;
+        gap: 10px;
+        padding: 40px 15px;
+    }
+
+    /* Naslov videa - minimalni font */
+    .video-title {
+        font-size: 1.25rem;
+    }
+
+    /* Centralni video - maksimalna širina */
+    .central-video {
+        width: 90%;
+    }
+
+    /* Video button - minimalne dimenzije */
+    .video-button {
+        max-width: 200px;
+        font-size: 0.9rem;
+    }
+
+    /* Sakriva sve floating slike */
+    .floating-img {
+        display: none;
+    }
+
+    /* Flip animacija - minimalni padding */
+    .video-back {
+        padding: 15px;
+    }
+    
+    .video-back-content h3 {
+        font-size: 1.1rem;
+    }
+    
+    .video-back-content p {
+        font-size: 0.85rem;
+    }
+}
