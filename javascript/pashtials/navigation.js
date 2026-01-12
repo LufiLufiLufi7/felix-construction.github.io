@@ -18,7 +18,7 @@ export function initNavigation() {
         },
 
         {
-            url:"documentation.pdf",
+            url:"MilenaZujovic170.24.pdf",
             text: "Documentation",
         },
     ];
@@ -39,6 +39,7 @@ export function initNavigation() {
     if (navContainer) {
         navContainer.innerHTML = code;
     }
+
 
 
 }
