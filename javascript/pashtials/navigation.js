@@ -21,6 +21,11 @@ export function initNavigation() {
             url:"MilenaZujovic170.24.pdf",
             text: "Documentation",
         },
+
+        {
+            url:"Download.zip",
+            text:"Download"
+        }
     ];
 
     function navigationMaker(object) {
@@ -39,7 +44,6 @@ export function initNavigation() {
     if (navContainer) {
         navContainer.innerHTML = code;
     }
-
 
 
 }

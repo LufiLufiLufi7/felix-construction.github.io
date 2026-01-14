@@ -138,7 +138,9 @@ header {
 
 /* Linija ispod teksta */
 .crna-linija {
+  /*
   width: 197px;
+  */
   border-bottom: 2px solid black;
   padding-bottom: 10px;
 }
@@ -368,7 +370,10 @@ header {
 .central-video {
   position: relative;
   z-index: 10;
+  /*
   width: 40%;
+  */
+  width: 90%;
   max-width: 600px;
   aspect-ratio: 16/9;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
@@ -535,15 +540,17 @@ header {
 }
 
 .video-back-content h3 {
-    font-size: 1.8rem;
+    font-size: 1.7rem;
     font-weight: bold;
     margin-bottom: 20px;
 }
 
 .video-back-content p {
-    font-size: 1rem;
+    font-size: 0.8rem;
     line-height: 1.6;
 }
+
+
 
 /* ========== LIGHTBOX ZA SLIKE ========== */
 
@@ -860,7 +867,7 @@ header {
 }
 
 .project-large {
-  height: 514px;
+  height: 100%;
 }
 
 .project-image {
@@ -900,3 +907,6 @@ header {
 .project-item:hover .project-overlay {
   opacity: 1;
 }
+
+
+

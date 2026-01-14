@@ -13,6 +13,7 @@ import { initVideoFlip } from "./pashtials/flipvideo.js";
 import { initButtonsResponsive } from "./pashtials/buttonskrol.js";
 
 
+
 /*dohvatam */
 $(document).ready(function() {
     console.log("Radi");
