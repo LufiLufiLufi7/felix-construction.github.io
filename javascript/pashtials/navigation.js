@@ -19,8 +19,9 @@ export function initNavigation() {
         },
 
         {
-            url:"MilenaZujovic170.24.pdf",
+            url:"MilenaZujovic170.24.docx",
             text: "Documentation",
+            target: "_blank"
         },
 
         {
@@ -28,10 +29,17 @@ export function initNavigation() {
             text:"Download"
         }
     ];
-
+/*
     function navigationMaker(object) {
         let line = `<li class="nav-item beliOkvir "><a href="${object.url}" class="nav-link active text-black ">${object.text}</a></li>`;
 
+        return line;
+    }
+        */
+
+    function navigationMaker(object) {
+        const target = object.target ? `target="${object.target}"` : '';
+        let line = `<li class="nav-item beliOkvir"><a href="${object.url}" class="nav-link active text-black" ${target}>${object.text}</a></li>`;
         return line;
     }
 

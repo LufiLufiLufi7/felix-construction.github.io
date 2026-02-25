@@ -1,3 +1,5 @@
+//Kada klikneš na sliku, ona se poveća i prikaže na sredini ekrana preko ostatka stranice.
+
 export function initImageLightbox() {
     
     $('.floating-img').on('click', function() {

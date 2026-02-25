@@ -15,7 +15,6 @@ export function initContactForm() {
     const phoneInput = document.getElementById('phone');
 
     const iti = window.intlTelInput(phoneInput, {
-        // Automatski detektuj državu korisnika na osnovu IP adrese
         initialCountry: 'auto',
         geoIpLookup: function(callback) {
             fetch('https://ip2c.org/s')
@@ -28,15 +27,11 @@ export function initContactForm() {
                         callback('rs');
                     }
                 })
-                .catch(() => callback('rs')); // Fallback: Srbija
+                .catch(() => callback('rs'));
         },
-        // Učitaj utils (potrebno za validaciju po državi)
         loadUtilsOnInit: 'https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/js/utils.js',
-        // Placeholder koji odgovara formatu izabrane države
         autoPlaceholder: 'aggressive',
-        // Preferred countries na vrhu liste
         preferredCountries: ['rs', 'ba', 'hr', 'me', 'si', 'de', 'at', 'ch'],
-        // Korisnik kuca pun broj sa + prefiksom (npr. +381641234567)
         nationalMode: false,
     });
 
@@ -99,8 +94,6 @@ export function initContactForm() {
         }
     }
 
-    // iti.isValidNumber() proverava broj prema pravilima izabrane države
-    // iti.getValidationError() vraća kod greške (TOO_SHORT, TOO_LONG, itd.)
     function validatePhone() {
         const val = phoneInput.value.trim();
 
@@ -118,7 +111,6 @@ export function initContactForm() {
             const name      = country.name || 'izabrane države';
             const dial      = country.dialCode ? `+${country.dialCode}` : '';
 
-            // ValidationError kodovi iz intl-tel-input
             const msgs = {
                 1:  `Nevažeći pozivni broj`,
                 2:  `Broj za ${name} (${dial}) je prekratak`,
@@ -155,16 +147,37 @@ export function initContactForm() {
         }
     }
 
+    // ========== VALIDACIJA DATUMA ==========
+    function validateDate(input) {
+        const val = input.value.trim();
+        if (val === '') {
+            showError(input, 'Datum početka projekta je obavezno polje');
+            return false;
+        }
+
+        const selectedDate = new Date(val);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate < today) {
+            showError(input, 'Datum ne može biti u prošlosti');
+            return false;
+        } else {
+            showSuccess(input);
+            return true;
+        }
+    }
+
     // ========== REAL-TIME VALIDACIJA SA BLOKIRANJEM ==========
 
     const nameInput    = document.getElementById('name');
     const emailInput   = document.getElementById('email');
     const messageInput = document.getElementById('message');
     const termsInput   = document.getElementById('terms');
+    const dateInput    = document.getElementById('projectDate');
 
-    // Onemogući sva polja osim prvog na startu
     function lockFieldsAfter(unlockedInput) {
-        const order = [nameInput, emailInput, phoneInput, messageInput, termsInput];
+        const order = [nameInput, emailInput, phoneInput, messageInput, termsInput, dateInput];
         const idx = order.indexOf(unlockedInput);
         order.forEach((field, i) => {
             if (i > idx) {
@@ -177,32 +190,30 @@ export function initContactForm() {
         });
     }
 
-    // Na startu zaključaj sva polja osim imena
     lockFieldsAfter(nameInput);
 
     // --- IME ---
     nameInput.addEventListener('input', () => validateName(nameInput));
     nameInput.addEventListener('blur', () => {
         if (validateName(nameInput)) {
-            lockFieldsAfter(emailInput); // otključaj email
+            lockFieldsAfter(emailInput);
             emailInput.focus();
         }
     });
 
+    
     // --- EMAIL ---
     emailInput.addEventListener('input', () => validateEmail(emailInput));
     emailInput.addEventListener('blur', () => {
-        if (validateEmail(emailInput)) {
-            lockFieldsAfter(phoneInput); // otključaj telefon
+    if (validateEmail(emailInput)) {
+        lockFieldsAfter(messageInput);
         }
     });
 
     // --- TELEFON ---
-    // Telefon je opciono - uvek može da pređe dalje
     phoneInput.addEventListener('input', () => validatePhone());
     phoneInput.addEventListener('blur', () => {
         validatePhone();
-        // Telefon je opciono - otključaj poruku bez obzira
         lockFieldsAfter(messageInput);
     });
     phoneInput.addEventListener('countrychange', () => {
@@ -213,13 +224,20 @@ export function initContactForm() {
     messageInput.addEventListener('input', () => validateMessage(messageInput));
     messageInput.addEventListener('blur', () => {
         if (validateMessage(messageInput)) {
-            lockFieldsAfter(termsInput); // otključaj checkbox
+            lockFieldsAfter(termsInput);
         }
     });
 
     // --- USLOVI KORISCENJA ---
-    // change event jer je checkbox (ne input/blur)
-    termsInput.addEventListener('change', () => validateTerms(termsInput));
+    termsInput.addEventListener('change', () => {
+        if (validateTerms(termsInput)) {
+            lockFieldsAfter(dateInput);
+        }
+    });
+
+    // --- DATUM ---
+    dateInput.addEventListener('change', () => validateDate(dateInput));
+    dateInput.addEventListener('blur', () => validateDate(dateInput));
 
     // ========== SUBMIT ==========
     form.addEventListener('submit', function(e) {
@@ -231,7 +249,8 @@ export function initContactForm() {
             validateEmail(emailInput) &
             validatePhone() &
             validateMessage(messageInput) &
-            validateTerms(termsInput);
+            validateTerms(termsInput) &
+            validateDate(dateInput);
 
         if (!isValid) {
             const firstError = form.querySelector('.forma-input.error');
@@ -239,28 +258,36 @@ export function initContactForm() {
             return;
         }
 
-        // iti.getNumber() vraća kompletan broj u E.164 formatu (npr. +38163123456)
         submitForm(
             nameInput.value.trim(),
             emailInput.value.trim(),
             iti.getNumber(),
-            messageInput.value.trim()
+            messageInput.value.trim(),
+            dateInput.value
         );
     });
 
     // ========== SLANJE FORME ==========
-    function submitForm(name, email, phone, message) {
+    function submitForm(name, email, phone, message, date) {
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
 
         submitBtn.disabled = true;
         submitBtn.textContent = 'Šalje se...';
 
+        // Formatiraj datum za prikaz
+        const formattedDate = new Date(date).toLocaleDateString('sr-RS', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+
         setTimeout(() => {
             const $success = $(`
                 <div class="success-message">
                     <strong>✓ Uspešno poslato!</strong><br>
-                    Hvala ${name}, vaša poruka je primljena. Kontaktiraćemo vas uskoro na ${email}.
+                    Hvala ${name}, vaša poruka je primljena. Kontaktiraćemo vas uskoro na ${email}.<br>
+                    Datum početka projekta: <strong>${formattedDate}</strong>
                 </div>
             `);
 
@@ -272,16 +299,20 @@ export function initContactForm() {
             console.log('Email:', email);
             console.log('Telefon:', phone || 'Nije unet');
             console.log('Poruka:', message);
+            console.log('Datum početka:', date);
             console.log('====================');
 
             form.reset();
             iti.setCountry('rs');
-            clearState(termsInput); // Resetuj checkbox stanje
+            clearState(termsInput);
+            clearState(dateInput);
             $('.forma-input').removeClass('error success');
             $('.error-message').removeClass('show').text('');
 
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
+
+            lockFieldsAfter(nameInput);
 
             setTimeout(() => {
                 $success.fadeOut(300, function() { $(this).remove(); });
