@@ -1,4 +1,5 @@
-
+//DINAMICKI NAVIGACIONI MENI 
+ 
 export function initNavigation() {
 
     let links = [
@@ -23,7 +24,7 @@ export function initNavigation() {
         },
 
         {
-            url:"Download.zip",
+            url:"https://drive.google.com/drive/folders/1rHb5Bk8pF6Ql0aHPjbmd9djfwUdNR12F",
             text:"Download"
         }
     ];

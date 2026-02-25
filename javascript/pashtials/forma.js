@@ -1,177 +1,292 @@
 // ========================================
 // CONTACT-FORM.JS
 // Validacija kontakt forme sa prikazom grešaka i success poruka
+// Telefon: intl-tel-input biblioteka (zastave + prefiks po državi)
 // ========================================
 
-// NAPOMENA: Deo koda za validaciju (regex pattern-i) je preuzet sa interneta i prilagođen projektu
+// Regex patterns
+const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-// Export funkcije za inicijalizaciju kontakt forme
 export function initContactForm() {
-    // Pronađi formu u DOM-u
     const form = document.getElementById('contactForm');
-    
-    // Ako forma ne postoji na stranici, izađi iz funkcije
     if (!form) return;
-    
-    // ========== EVENT LISTENER ZA SUBMIT FORME ==========
-    form.addEventListener('submit', function(e) {
-        // Spreči default ponašanje forme (reload stranice)
-        e.preventDefault();
-        
-        // jQuery - obriši sve prethodne greške i stilove
-        $('.forma-input').removeClass('error success');
-        $('.error-message').removeClass('show');
-        $('.success-message').remove();
-        
-        // Flag za praćenje validnosti forme
-        let isValid = true;
-        
-        // ========== VALIDACIJA IMENA ==========
-        const nameInput = document.getElementById('name');
-        const name = nameInput.value.trim(); // Ukloni whitespace sa početka i kraja
-        
-        // Proveri da li je ime prazno
-        if (name === '') {
-            showError(nameInput, 'Ime i prezime je obavezno polje');
-            isValid = false;
-        } 
-        // Proveri da li ima minimum 3 karaktera
-        else if (name.length < 3) {
-            showError(nameInput, 'Ime mora imati najmanje 3 karaktera');
-            isValid = false;
-        } 
-        // Ako je validno, dodaj success klasu (zeleni border)
-        else {
-            $(nameInput).addClass('success');
+
+    // ========== INICIJALIZACIJA intl-tel-input ==========
+    const phoneInput = document.getElementById('phone');
+
+    const iti = window.intlTelInput(phoneInput, {
+        // Automatski detektuj državu korisnika na osnovu IP adrese
+        initialCountry: 'auto',
+        geoIpLookup: function(callback) {
+            fetch('https://ip2c.org/s')
+                .then(res => res.text())
+                .then(data => {
+                    const result = (data || '').split(';');
+                    if (result[0] === '1') {
+                        callback(result[1]);
+                    } else {
+                        callback('rs');
+                    }
+                })
+                .catch(() => callback('rs')); // Fallback: Srbija
+        },
+        // Učitaj utils (potrebno za validaciju po državi)
+        loadUtilsOnInit: 'https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/js/utils.js',
+        // Placeholder koji odgovara formatu izabrane države
+        autoPlaceholder: 'aggressive',
+        // Preferred countries na vrhu liste
+        preferredCountries: ['rs', 'ba', 'hr', 'me', 'si', 'de', 'at', 'ch'],
+        // Korisnik kuca pun broj sa + prefiksom (npr. +381641234567)
+        nationalMode: false,
+    });
+
+    // ========== POMOCNE FUNKCIJE ==========
+
+    function showError(input, message) {
+        $(input).removeClass('success').addClass('error');
+        const errorDiv = input.closest('.mb-3, .mb-4').querySelector('.error-message');
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
         }
-        
-        // ========== VALIDACIJA EMAIL-A ==========
-        const emailInput = document.getElementById('email');
-        const email = emailInput.value.trim();
-        // Regex pattern za proveru email formata (preuzeto sa interneta)
-        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        
-        // Proveri da li je email prazan
-        if (email === '') {
-            showError(emailInput, 'Email je obavezno polje');
-            isValid = false;
-        } 
-        // Proveri da li email odgovara regex patternu
-        else if (!emailRegex.test(email)) {
-            showError(emailInput, 'Unesite validnu email adresu (npr. primer@domen.com)');
-            isValid = false;
-        } 
-        // Ako je validan, dodaj success klasu
-        else {
-            $(emailInput).addClass('success');
+    }
+
+    function showSuccess(input) {
+        $(input).removeClass('error').addClass('success');
+        const errorDiv = input.closest('.mb-3, .mb-4').querySelector('.error-message');
+        if (errorDiv) {
+            errorDiv.textContent = '';
+            errorDiv.classList.remove('show');
         }
-        
-        // ========== VALIDACIJA TELEFONA ==========
-        const phoneInput = document.getElementById('phone');
-        const phone = phoneInput.value.trim();
-        // Regex pattern za proveru telefon formata (preuzeto sa interneta)
-        // Podržava formate: +381 11 123 4567, 011-123-4567, itd.
-        const phoneRegex = /^[\+]?[(]?[0-9]{2,3}[)]?[-\s\.]?[0-9]{2,3}[-\s\.]?[0-9]{3,4}[-\s\.]?[0-9]{3,4}$/;
-        
-        // Telefon je opcioni field, ali ako je unet mora biti validan
-        if (phone !== '' && !phoneRegex.test(phone)) {
-            showError(phoneInput, 'Unesite validan broj telefona (npr. +381 11 123 4567)');
-            isValid = false;
-        } 
-        // Ako je unet i validan, dodaj success klasu
-        else if (phone !== '') {
-            $(phoneInput).addClass('success');
+    }
+
+    function clearState(input) {
+        $(input).removeClass('error success');
+        const errorDiv = input.closest('.mb-3, .mb-4').querySelector('.error-message');
+        if (errorDiv) {
+            errorDiv.textContent = '';
+            errorDiv.classList.remove('show');
         }
-        
-        // ========== VALIDACIJA PORUKE ==========
-        const messageInput = document.getElementById('message');
-        const message = messageInput.value.trim();
-        
-        // Proveri da li je poruka prazna
-        if (message === '') {
-            showError(messageInput, 'Poruka je obavezno polje');
-            isValid = false;
-        } 
-        // Proveri da li ima minimum 10 karaktera
-        else if (message.length < 10) {
-            showError(messageInput, 'Poruka mora imati najmanje 10 karaktera');
-            isValid = false;
-        } 
-        // Ako je validna, dodaj success klasu
-        else {
-            $(messageInput).addClass('success');
+    }
+
+    // ========== VALIDACIONE FUNKCIJE ==========
+
+    function validateName(input) {
+        const val = input.value.trim();
+        if (val === '') {
+            showError(input, 'Ime i prezime je obavezno polje');
+            return false;
+        } else if (val.length < 3) {
+            showError(input, 'Ime mora imati najmanje 3 karaktera');
+            return false;
+        } else {
+            showSuccess(input);
+            return true;
         }
-        
-        // ========== SLANJE FORME AKO JE SVE VALIDNO ==========
-        if (isValid) {
-            submitForm(name, email, phone, message);
+    }
+
+    function validateEmail(input) {
+        const val = input.value.trim();
+        if (val === '') {
+            showError(input, 'Email je obavezno polje');
+            return false;
+        } else if (!emailRegex.test(val)) {
+            showError(input, 'Unesite validnu email adresu (npr. primer@domen.com)');
+            return false;
+        } else {
+            showSuccess(input);
+            return true;
+        }
+    }
+
+    // iti.isValidNumber() proverava broj prema pravilima izabrane države
+    // iti.getValidationError() vraća kod greške (TOO_SHORT, TOO_LONG, itd.)
+    function validatePhone() {
+        const val = phoneInput.value.trim();
+
+        if (val === '') {
+            clearState(phoneInput);
+            return true;
+        }
+
+        if (iti.isValidNumber()) {
+            showSuccess(phoneInput);
+            return true;
+        } else {
+            const errorCode = iti.getValidationError();
+            const country   = iti.getSelectedCountryData();
+            const name      = country.name || 'izabrane države';
+            const dial      = country.dialCode ? `+${country.dialCode}` : '';
+
+            // ValidationError kodovi iz intl-tel-input
+            const msgs = {
+                1:  `Nevažeći pozivni broj`,
+                2:  `Broj za ${name} (${dial}) je prekratak`,
+                3:  `Broj za ${name} (${dial}) je predugačak`,
+                4:  `Unesena vrednost nije broj telefona`,
+            };
+
+            showError(phoneInput, msgs[errorCode] ?? `Unesite validan broj za ${name} (${dial})`);
+            return false;
+        }
+    }
+
+    function validateTerms(input) {
+        if (!input.checked) {
+            showError(input, 'Morate prihvatiti uslove korišćenja');
+            return false;
+        } else {
+            showSuccess(input);
+            return true;
+        }
+    }
+
+    function validateMessage(input) {
+        const val = input.value.trim();
+        if (val === '') {
+            showError(input, 'Poruka je obavezno polje');
+            return false;
+        } else if (val.length < 10) {
+            showError(input, 'Poruka mora imati najmanje 10 karaktera');
+            return false;
+        } else {
+            showSuccess(input);
+            return true;
+        }
+    }
+
+    // ========== REAL-TIME VALIDACIJA SA BLOKIRANJEM ==========
+
+    const nameInput    = document.getElementById('name');
+    const emailInput   = document.getElementById('email');
+    const messageInput = document.getElementById('message');
+    const termsInput   = document.getElementById('terms');
+
+    // Onemogući sva polja osim prvog na startu
+    function lockFieldsAfter(unlockedInput) {
+        const order = [nameInput, emailInput, phoneInput, messageInput, termsInput];
+        const idx = order.indexOf(unlockedInput);
+        order.forEach((field, i) => {
+            if (i > idx) {
+                field.disabled = true;
+                field.closest('.mb-3, .mb-4').style.opacity = '0.5';
+            } else {
+                field.disabled = false;
+                field.closest('.mb-3, .mb-4').style.opacity = '1';
+            }
+        });
+    }
+
+    // Na startu zaključaj sva polja osim imena
+    lockFieldsAfter(nameInput);
+
+    // --- IME ---
+    nameInput.addEventListener('input', () => validateName(nameInput));
+    nameInput.addEventListener('blur', () => {
+        if (validateName(nameInput)) {
+            lockFieldsAfter(emailInput); // otključaj email
+            emailInput.focus();
         }
     });
-    
-    // ========== FUNKCIJA ZA PRIKAZ GREŠKE ==========
-    function showError(input, message) {
-        // Dodaj error klasu input-u (crveni border)
-        input.classList.add('error');
-        
-        // Pronađi error-message div unutar parent elementa
-        const errorDiv = input.parentElement.querySelector('.error-message');
-        
-        // Postavi tekst greške
-        errorDiv.textContent = message;
-        
-        // Prikaži error message sa animacijom (CSS klasa)
-        errorDiv.classList.add('show');
-    }
-    
-    // ========== FUNKCIJA ZA SLANJE FORME ==========
+
+    // --- EMAIL ---
+    emailInput.addEventListener('input', () => validateEmail(emailInput));
+    emailInput.addEventListener('blur', () => {
+        if (validateEmail(emailInput)) {
+            lockFieldsAfter(phoneInput); // otključaj telefon
+        }
+    });
+
+    // --- TELEFON ---
+    // Telefon je opciono - uvek može da pređe dalje
+    phoneInput.addEventListener('input', () => validatePhone());
+    phoneInput.addEventListener('blur', () => {
+        validatePhone();
+        // Telefon je opciono - otključaj poruku bez obzira
+        lockFieldsAfter(messageInput);
+    });
+    phoneInput.addEventListener('countrychange', () => {
+        if (phoneInput.value.trim() !== '') validatePhone();
+    });
+
+    // --- PORUKA ---
+    messageInput.addEventListener('input', () => validateMessage(messageInput));
+    messageInput.addEventListener('blur', () => {
+        if (validateMessage(messageInput)) {
+            lockFieldsAfter(termsInput); // otključaj checkbox
+        }
+    });
+
+    // --- USLOVI KORISCENJA ---
+    // change event jer je checkbox (ne input/blur)
+    termsInput.addEventListener('change', () => validateTerms(termsInput));
+
+    // ========== SUBMIT ==========
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        $('.success-message').remove();
+
+        const isValid =
+            validateName(nameInput) &
+            validateEmail(emailInput) &
+            validatePhone() &
+            validateMessage(messageInput) &
+            validateTerms(termsInput);
+
+        if (!isValid) {
+            const firstError = form.querySelector('.forma-input.error');
+            if (firstError) firstError.focus();
+            return;
+        }
+
+        // iti.getNumber() vraća kompletan broj u E.164 formatu (npr. +38163123456)
+        submitForm(
+            nameInput.value.trim(),
+            emailInput.value.trim(),
+            iti.getNumber(),
+            messageInput.value.trim()
+        );
+    });
+
+    // ========== SLANJE FORME ==========
     function submitForm(name, email, phone, message) {
-        // Pronađi submit dugme
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
-        
-        // Onemogući dugme tokom "slanja"
+
         submitBtn.disabled = true;
         submitBtn.textContent = 'Šalje se...';
-        
-        // Simulacija slanja forme (u realnom projektu bi ovde išao AJAX/fetch poziv)
+
         setTimeout(() => {
-            // jQuery - dinamički kreiraj success poruku
             const $success = $(`
                 <div class="success-message">
                     <strong>✓ Uspešno poslato!</strong><br>
                     Hvala ${name}, vaša poruka je primljena. Kontaktiraćemo vas uskoro na ${email}.
                 </div>
             `);
-            
-            // Dodaj poruku u DOM ispod forme
+
             $(form).parent().append($success);
-            
-            // Prikaži sa fade-in animacijom (jQuery efekat)
             $success.hide().fadeIn(300);
-            
-            // Console log za testiranje/debugging
+
             console.log('=== PODACI FORME ===');
             console.log('Ime:', name);
             console.log('Email:', email);
             console.log('Telefon:', phone || 'Nije unet');
             console.log('Poruka:', message);
             console.log('====================');
-            
-            // Resetuj formu
+
             form.reset();
-            
-            // Vrati dugme u normalno stanje
+            iti.setCountry('rs');
+            clearState(termsInput); // Resetuj checkbox stanje
+            $('.forma-input').removeClass('error success');
+            $('.error-message').removeClass('show').text('');
+
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
-            
-            // Automatski ukloni success poruku nakon 7 sekundi
+
             setTimeout(() => {
-                // Fade-out animacija pre uklanjanja
-                $success.fadeOut(300, function() {
-                    $(this).remove();
-                });
+                $success.fadeOut(300, function() { $(this).remove(); });
             }, 7000);
-            
-        }, 1500); // 1.5 sekundi delay za simulaciju slanja
+
+        }, 1500);
     }
 }
