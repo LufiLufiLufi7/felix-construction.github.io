@@ -10,6 +10,9 @@
 
     <link rel="icon" href="images/image-removebg-preview.png" type="image/png">
 
+    <!--ZA BROJ TEL JS biblioteka-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/css/intlTelInput.css">
+
     <!-- Primary Meta Tags -->
     <title>Felic Constructions | Professional Construction Services Since 1968</title>
     <meta name="title" content="Felic Constructions | Professional Construction Services Since 1968">
@@ -47,7 +50,7 @@
         </video>
 
         <header class="container-fluid navbar-light mutna-pozadina p-3 ">
-            <nav class="navbar navbar-expand-md  ">
+            <nav class="navbar navbar-expand-lg  ">
                 <div class="container ">
                     <a onclick="location.href='index.html'" class="navbar-brand text-white box-shadow"><img
                             src="images/image-removebg-preview.png" alt="Logo" width="130"></img></a>
@@ -243,7 +246,7 @@
                         <div class="mb-3">
                             <label class="form-label" for="email">Email *</label>
                             <input type="email" class="form-control forma-input" id="email" name="email"
-                                placeholder="vas@email.com" required>
+                                placeholder="your@email.com" required>
                             <div class="error-message"></div>
                         </div>
 
@@ -258,6 +261,36 @@
                             <label for="message" class="form-label">Message *</label>
                             <textarea class="form-control forma-input" id="message" name="message" rows="5"
                                 placeholder="Describe Your Project..." required></textarea>
+                            <div class="error-message"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input forma-input" id="terms">
+                                <label class="form-check-label" for="terms"> &nbsp; I accept the <a href="/uslovi-koriscenja" target="_blank"> terms of use.</a> *
+                                </label>
+                                </div>
+                            <div class="error-message">
+                            </div>
+                        </div>  
+
+                        <div class="mb-3">
+                            <label for="service" class="form-label">Service of Interest *</label>
+                            <select class="form-control forma-input" id="service" name="service" required>
+                                <option value="" disabled selected>Select a service...</option>
+                                <option value="adaptations">Adaptations</option>
+                                <option value="renovations">Renovations</option>
+                                <option value="roughConstruction">Rough Construction</option>
+                                <option value="doors">Doors</option>
+                                <option value="windows">Windows</option>
+                                <option value="flooring">Flooring</option>
+                                <option value="tilework">Tile Work</option>
+                                <option value="knauf">Drywall & Knauf</option>
+                                <option value="electrical">Electrical Installation</option>
+                                <option value="plumbing">Plumbing Works</option>
+                                <option value="insulation">Insulation</option>
+                                <option value="maintenance">Building Maintenance</option>
+                            </select>
                             <div class="error-message"></div>
                         </div>
 
@@ -349,6 +382,11 @@
         </footer>
     </section>
 
+   
+    <!-- NOVO - za formu - broj -->
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/js/intlTelInput.min.js"></script>
+    <script src="javascript/script.js" type="module"></script>  
+
     <script src="javascript/jQuery.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
@@ -356,6 +394,5 @@
     <script src="javascript/script.js" type="module"></script>
 
 </body>
-
 
 </html>
