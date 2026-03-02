@@ -1018,5 +1018,31 @@ select.forma-input option:hover {
 select.forma-input option {
     background-color: white !important;
     color: black !important;
-
 }
+
+/* ========== DATE INPUT ========== */
+input[type="date"].forma-input {
+    color: white !important;
+    color-scheme: dark;
+}
+
+input[type="date"].forma-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+input[type="date"].forma-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+
+
+/* ========== BELA SLOVA U FORMI SUBMIT ========== */
+
+button[type="submit"].btn-yellow {
+    color: white !important;
+}
+
+
+
